@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     List<Bitmap> bitmapList = new ArrayList<>();
     String lastJsonResponse;
     List<Post> lastParsedPosts = new ArrayList<>();
-    
+
     private static final int INITIAL_DISPLAY_COUNT = 2;
     private int currentDisplayCount = INITIAL_DISPLAY_COUNT;
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         buttonLoadMore = findViewById(R.id.buttonLoadMore);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        
+
         buttonLoadMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PostCreateActivity.class);
         startActivityForResult(intent, 1);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         if (requestCode == 1 && resultCode == RESULT_OK) {
             textView.setText("동기화 중...");
             taskDownload = new CloudImage();
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     allPostList.addAll(lastParsedPosts);
                     currentDisplayCount = INITIAL_DISPLAY_COUNT;
                     updateDisplayedPosts();
-                    
+
                     SimpleDateFormat sdf = new SimpleDateFormat("MM월 dd일 HH:mm", Locale.getDefault());
                     String syncTime = sdf.format(new Date());
                     textView.setText("동기화 완료! (" + allPostList.size() + "개) - 마지막 동기화: " + syncTime);
@@ -208,18 +208,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    
+
     private void updateDisplayedPosts() {
         postList.clear();
         int endIndex = Math.min(currentDisplayCount, allPostList.size());
         for (int i = 0; i < endIndex; i++) {
             postList.add(allPostList.get(i));
         }
-        
+
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
-        
+
         if (buttonLoadMore != null) {
             if (currentDisplayCount >= allPostList.size() || allPostList.size() <= INITIAL_DISPLAY_COUNT) {
                 buttonLoadMore.setVisibility(View.GONE);
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    
+
     private void loadMorePosts() {
         currentDisplayCount += INITIAL_DISPLAY_COUNT;
         updateDisplayedPosts();

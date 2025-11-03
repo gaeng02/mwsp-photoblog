@@ -16,7 +16,7 @@
             android:layout_height="50dp"
             android:onClick="onClickDownload"
             android:text="동기화" />
-        
+
         <Button
             android:id="@+id/btn_save"
             android:layout_width="215dp"
