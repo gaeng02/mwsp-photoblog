@@ -221,11 +221,11 @@ public class MainActivity extends AppCompatActivity {
         }
         
         if (buttonLoadMore != null) {
-            if (currentDisplayCount >= allPostList.size()) {
+            if (currentDisplayCount >= allPostList.size() || allPostList.size() <= INITIAL_DISPLAY_COUNT) {
                 buttonLoadMore.setVisibility(View.GONE);
             } else {
                 buttonLoadMore.setVisibility(View.VISIBLE);
-                buttonLoadMore.setText("더보기 (" + (allPostList.size() - currentDisplayCount) + "개 남음)");
+                buttonLoadMore.setText("More");
             }
         }
     }
