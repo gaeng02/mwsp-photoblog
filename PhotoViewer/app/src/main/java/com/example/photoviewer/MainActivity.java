@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     RecyclerView recyclerView;
     ImageAdapter adapter;
-    String site_url = "http://10.0.2.2:8000";
+    String site_url = "https://gaeng02.pythonanywhere.com";
     List<Post> postList = new ArrayList<>();
 
     CloudImage taskDownload;
@@ -117,10 +117,6 @@ public class MainActivity extends AppCompatActivity {
                         String image = post_json.optString("image", "");
 
                         if (!image.isEmpty()) {
-                            if (image.contains("127.0.0.1")) {
-                                image = image.replace("127.0.0.1", "10.0.2.2");
-                            }
-
                             try {
                                 URL myImageUrl = new URL(image);
                                 HttpURLConnection imgConn = (HttpURLConnection) myImageUrl.openConnection();

@@ -38,7 +38,7 @@ public class PostCreateActivity extends AppCompatActivity {
     Button buttonSubmit;
     TextView textViewStatus;
     
-    String site_url = "http://10.0.2.2:8000";
+    String site_url = "https://gaeng02.pythonanywhere.com";
     Bitmap selectedBitmap;
     
     @Override
