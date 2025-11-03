@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.content.Intent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -23,16 +24,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
     RecyclerView recyclerView;
+    Button buttonLoadMore;
     ImageAdapter adapter;
     String site_url = "https://gaeng02.pythonanywhere.com";
     List<Post> postList = new ArrayList<>();
+    List<Post> allPostList = new ArrayList<>();
 
     CloudImage taskDownload;
 
@@ -41,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     List<Bitmap> bitmapList = new ArrayList<>();
     String lastJsonResponse;
     List<Post> lastParsedPosts = new ArrayList<>();
+    
+    private static final int INITIAL_DISPLAY_COUNT = 2;
+    private int currentDisplayCount = INITIAL_DISPLAY_COUNT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +59,29 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textView);
         recyclerView = findViewById(R.id.recyclerView);
+        buttonLoadMore = findViewById(R.id.buttonLoadMore);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        
+        buttonLoadMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadMorePosts();
+            }
+        });
 
-        ImageAdapter imageAdapter = new ImageAdapter(postList, site_url);
+        ImageAdapter imageAdapter = new ImageAdapter(postList, site_url, new ImageAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Post post) {
+                Intent intent = new Intent(MainActivity.this, PostDetailActivity.class);
+                intent.putExtra("post_id", post.getId());
+                intent.putExtra("post_title", post.getTitle());
+                intent.putExtra("post_text", post.getText());
+                intent.putExtra("post_published_date", post.getPublished_date());
+                intent.putExtra("post_image", post.getImage());
+                intent.putExtra("site_url", site_url);
+                startActivity(intent);
+            }
+        });
         adapter = imageAdapter;
         recyclerView.setAdapter(adapter);
     }
@@ -158,19 +187,51 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<Bitmap> images) {
             try {
                 if (lastParsedPosts != null && !lastParsedPosts.isEmpty()) {
-                    postList.clear();
-                    postList.addAll(lastParsedPosts);
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
-                    textView.setText("동기화 완료! (" + postList.size() + "개)");
+                    allPostList.clear();
+                    allPostList.addAll(lastParsedPosts);
+                    currentDisplayCount = INITIAL_DISPLAY_COUNT;
+                    updateDisplayedPosts();
+                    
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM월 dd일 HH:mm", Locale.getDefault());
+                    String syncTime = sdf.format(new Date());
+                    textView.setText("동기화 완료! (" + allPostList.size() + "개) - 마지막 동기화: " + syncTime);
                 } else {
                     textView.setText("불러올 데이터가 없습니다.");
+                    allPostList.clear();
+                    updateDisplayedPosts();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 textView.setText("동기화 실패: " + e.getMessage());
+                allPostList.clear();
+                updateDisplayedPosts();
             }
         }
+    }
+    
+    private void updateDisplayedPosts() {
+        postList.clear();
+        int endIndex = Math.min(currentDisplayCount, allPostList.size());
+        for (int i = 0; i < endIndex; i++) {
+            postList.add(allPostList.get(i));
+        }
+        
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        
+        if (buttonLoadMore != null) {
+            if (currentDisplayCount >= allPostList.size()) {
+                buttonLoadMore.setVisibility(View.GONE);
+            } else {
+                buttonLoadMore.setVisibility(View.VISIBLE);
+                buttonLoadMore.setText("더보기 (" + (allPostList.size() - currentDisplayCount) + "개 남음)");
+            }
+        }
+    }
+    
+    private void loadMorePosts() {
+        currentDisplayCount += INITIAL_DISPLAY_COUNT;
+        updateDisplayedPosts();
     }
 }

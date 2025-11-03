@@ -17,10 +17,16 @@ import java.util.List;
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private final List<Post> postList;
     private final String baseUrl;
+    private final OnItemClickListener clickListener;
 
-    public ImageAdapter(List<Post> postList, String baseUrl) {
+    public interface OnItemClickListener {
+        void onItemClick(Post post);
+    }
+
+    public ImageAdapter(List<Post> postList, String baseUrl, OnItemClickListener clickListener) {
         this.postList = postList;
         this.baseUrl = baseUrl;
+        this.clickListener = clickListener;
     }
 
     @Override
@@ -56,6 +62,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         } else {
             holder.textViewText.setText("");
         }
+        
+        // 클릭 리스너 설정
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (clickListener != null) {
+                    clickListener.onItemClick(post);
+                }
+            }
+        });
     }
 
     private String formatDate(String dateStr) {
